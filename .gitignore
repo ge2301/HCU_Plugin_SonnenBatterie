@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.tar.gz
+plugin/data/
+.DS_Store
+*.log
+authtoken.txt
