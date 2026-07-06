@@ -14,15 +14,15 @@ const NODE_POSITIONS = {
 };
 
 const nodeStyle = {
-  width: 140,
-  height: 60,
-  borderRadius: 12,
-  padding: "8px 14px",
+  width: 180,
+  height: 80,
+  borderRadius: 14,
+  padding: "10px 16px",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  gap: 8,
-  fontSize: 13,
+  gap: 12,
+  fontSize: 15,
   fontWeight: 600,
   border: "1px solid rgba(255,255,255,0.08)",
   fontFamily: "inherit",
@@ -51,7 +51,7 @@ const PvNode = ({ data }) => (
     <HandleDot id="bat" type="source" position={Position.Top} />
     <HandleDot id="haus" type="source" position={Position.Right} />
     <HandleDot id="netz" type="source" position={Position.Bottom} />
-    <NodeLabel icon={<Sun size={18} color="#f0ad4e" />} label="PV" value={data.productionW} color="#f0ad4e" />
+    <NodeLabel icon={<Sun size={36} color="#f0ad4e" />} label="PV" value={data.productionW} color="#f0ad4e" />
   </div>
 );
 
@@ -60,7 +60,7 @@ const HausNode = ({ data }) => (
     <HandleDot id="pv" type="target" position={Position.Left} />
     <HandleDot id="bat" type="target" position={Position.Top} />
     <HandleDot id="netz" type="target" position={Position.Bottom} />
-    <NodeLabel icon={<Home size={18} color="#5aa9e6" />} label="Haus" value={data.consumptionW} color="#5aa9e6" />
+    <NodeLabel icon={<Home size={36} color="#5aa9e6" />} label="Haus" value={data.consumptionW} color="#5aa9e6" />
   </div>
 );
 
@@ -78,7 +78,7 @@ const BatterieNode = ({ data }) => {
     <div style={nodeStyle}>
       <HandleDot id="pv" type="target" position={Position.Left} />
       <HandleDot id="haus" type="source" position={Position.Right} />
-      <NodeLabel icon={<Icon size={18} color={socColor} />} label="Batterie" value={chargeW} color={socColor} />
+      <NodeLabel icon={<Icon size={36} color={socColor} />} label="Batterie" value={chargeW} color={socColor} />
     </div>
   );
 };
@@ -87,7 +87,7 @@ const NetzNode = ({ data }) => (
   <div style={nodeStyle}>
     <HandleDot id="pv" type="target" position={Position.Left} />
     <HandleDot id="haus" type="source" position={Position.Right} />
-    <NodeLabel icon={<Zap size={18} color="#b07de0" />} label="Netz" value={data.gridImportPowerW} color="#b07de0" />
+    <NodeLabel icon={<Zap size={36} color="#b07de0" />} label="Netz" value={data.gridImportPowerW} color="#b07de0" />
   </div>
 );
 
