@@ -29,11 +29,17 @@ class HcuClient {
 		this.reconnectDelayMs = 2000;
 		this.maxReconnectDelayMs = 30000;
 		this.shouldRun = true;
+		// Device IDs that HCU has confirmed via STATUS_REQUEST.
+		// STATUS_EVENT is only sent for these devices to avoid "Device not found".
+		this.knownDeviceIds = new Set();
 	}
 
 	connect() {
 		const url = `wss://${this.host}:9001`;
 		logger.info(`Connecting to HCU Connect API at ${url} (plugin ${this.pluginId})`);
+
+		// Reset known devices on each fresh connection — HCU may have reset state.
+		this.knownDeviceIds.clear();
 
 		this.ws = new WebSocket(url, {
 			rejectUnauthorized: false,
@@ -107,9 +113,14 @@ class HcuClient {
 		if (Array.isArray(requestedIds) && requestedIds.length > 0) {
 			const set = new Set(requestedIds);
 			devices = devices.filter((d) => set.has(d.deviceId));
+			// HCU confirmed it knows these devices.
+			for (const did of requestedIds) this.knownDeviceIds.add(did);
+		} else {
+			// HCU requested status for ALL devices — mark all as known.
+			for (const d of devices) this.knownDeviceIds.add(d.deviceId);
 		}
 		this._send(this._envelope(id, "STATUS_RESPONSE", { success: true, devices }));
-		logger.info(`Answered STATUS_REQUEST with ${devices.length} device(s)`);
+		logger.info(`Answered STATUS_REQUEST with ${devices.length} device(s), known=${this.knownDeviceIds.size}`);
 	}
 
 	_sendConfigTemplate(id) {
@@ -192,15 +203,23 @@ class HcuClient {
 
 	/**
 	 * Pushes a partial status update for the given devices.
+	 * Only sends for device IDs that HCU has confirmed via STATUS_REQUEST.
 	 * @param {Array<{deviceId: string, features: Array}>} deviceUpdates
 	 */
 	sendStatusEvents(deviceUpdates) {
+		let sent = 0;
+		let skipped = 0;
 		for (const update of deviceUpdates) {
-			this._send(this._envelope(uuidv4(), "STATUS_EVENT", update));
+			if (this.knownDeviceIds.has(update.deviceId)) {
+				this._send(this._envelope(uuidv4(), "STATUS_EVENT", update));
+				sent++;
+			} else {
+				skipped++;
+				logger.debug(`Skipped STATUS_EVENT for ${update.deviceId}: not yet known to HCU`);
+			}
 		}
-		if (deviceUpdates.length > 0) {
-			logger.debug(`Pushed status events for ${deviceUpdates.length} device(s)`);
-		}
+		if (sent > 0) logger.debug(`Pushed status events for ${sent} device(s)`);
+		if (skipped > 0) logger.debug(`Skipped ${skipped} status event(s): devices not yet included in Homematic IP`);
 	}
 
 	/** Sends the current plugin readiness proactively (e.g. after a poll failure). */
