@@ -1,18 +1,33 @@
 import { useState, useCallback, useRef } from "react";
 
+const DEFAULT_FORM = {
+  sonnenHost: "",
+  sonnenApiVersion: "V2",
+  sonnenToken: "",
+  sonnenPort: null,
+  pollIntervalSeconds: 30,
+  batteryCapacityWh: null,
+  exposeBattery: true,
+  exposeInverter: true,
+  exposeGrid: true,
+  exposeConsumption: true,
+};
+
 export default function ConfigForm({ initialConfig, onSave }) {
   const initRef = useRef(false);
-  const [form, setForm] = useState(initialConfig || {});
+  const [form, setForm] = useState(DEFAULT_FORM);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(null);
   const [error, setError] = useState(null);
 
-  // Initialise form only once on mount — never overwrite user edits on poll refresh.
-  // After a successful save the parent calls fetchState which updates initialConfig,
-  // but we deliberately ignore those updates so the user's typed values stay intact.
+  // Initialise from server once on mount if available.
+  // After a successful save the parent refetches state, but we deliberately
+  // ignore those updates so the user's typed values stay intact.
   if (!initRef.current) {
     initRef.current = true;
-    if (initialConfig) setForm({ ...initialConfig });
+    if (initialConfig && Object.keys(initialConfig).length > 0) {
+      setForm({ ...DEFAULT_FORM, ...initialConfig });
+    }
   }
 
   const set = (key) => (e) => {
@@ -71,10 +86,6 @@ export default function ConfigForm({ initialConfig, onSave }) {
     },
     [form]
   );
-
-  if (!form || Object.keys(form).length === 0) {
-    return <div className="placeholder">Lade Konfiguration …</div>;
-  }
 
   return (
     <form className="config-form" onSubmit={handleSubmit}>
