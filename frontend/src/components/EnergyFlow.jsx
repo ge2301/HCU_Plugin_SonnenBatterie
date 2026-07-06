@@ -52,7 +52,7 @@ const PvNode = ({ data }) => (
     <HandleDot id="bat" type="source" position={Position.Top} />
     <HandleDot id="haus" type="source" position={Position.Right} />
     <HandleDot id="netz" type="source" position={Position.Bottom} />
-    <NodeLabel icon={<Sun size={47} color="#f0ad4e" />} label="PV" subLabel="Erzeugung" value={data.productionW} color="#f0ad4e" />
+    <NodeLabel icon={<Sun size={59} color="#f0ad4e" />} label="PV" subLabel="Erzeugung" value={data.productionW} color="#f0ad4e" />
   </div>
 );
 
@@ -61,7 +61,7 @@ const HausNode = ({ data }) => (
     <HandleDot id="pv" type="target" position={Position.Left} />
     <HandleDot id="bat" type="target" position={Position.Top} />
     <HandleDot id="netz" type="target" position={Position.Bottom} />
-    <NodeLabel icon={<Home size={47} color="#5aa9e6" />} label="Haus" subLabel="Verbrauch" value={data.consumptionW} color="#5aa9e6" />
+    <NodeLabel icon={<Home size={59} color="#5aa9e6" />} label="Haus" subLabel="Verbrauch" value={data.consumptionW} color="#5aa9e6" />
   </div>
 );
 
@@ -87,7 +87,7 @@ const BatterieNode = ({ data }) => {
       <HandleDot id="pv" type="target" position={Position.Left} />
       <HandleDot id="haus" type="source" position={Position.Right} />
       <NodeLabel
-        icon={<Icon size={47} color={socColor} />}
+        icon={<Icon size={59} color={socColor} />}
         label="Batterie"
         subLabel={`${Math.round(soc)} %${statusHint}`}
         value={absW}
@@ -107,7 +107,7 @@ const NetzNode = ({ data }) => {
     color = "#b07de0";
   } else if (isImport) {
     subLabel = "Bezug";
-    color = "#5aa9e6";
+    color = "#b07de0";
   } else {
     subLabel = "Ausgeglichen";
     color = "#8b9bad";
@@ -117,7 +117,7 @@ const NetzNode = ({ data }) => {
       <HandleDot id="pv" type="target" position={Position.Left} />
       <HandleDot id="haus" type="source" position={Position.Right} />
       <NodeLabel
-        icon={<Zap size={47} color="#b07de0" />}
+        icon={<Zap size={59} color="#b07de0" />}
         label="Netz"
         subLabel={subLabel}
         value={Math.abs(gridW)}
