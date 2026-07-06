@@ -131,12 +131,13 @@ const customNodeTypes = { [nodeTypes.pv]: PvNode, [nodeTypes.haus]: HausNode, [n
 
 function makeEdge(id, source, target, w, color, sourceHandle, targetHandle, type) {
   const absW = Math.abs(w);
+  const hasFlow = absW > 5;
   const edge = {
-    id, source, target, animated: absW > 5,
+    id, source, target, animated: hasFlow,
     style: {
       stroke: color,
-      strokeWidth: Math.max(1, Math.min(6, absW / 300)),
-      opacity: Math.max(0.15, Math.min(1, absW / 400)),
+      strokeWidth: 2.5,
+      opacity: hasFlow ? 1 : 0,
     },
   };
   if (sourceHandle) edge.sourceHandle = sourceHandle;
