@@ -45,15 +45,18 @@ const NodeLabel = ({ icon, label, value, color }) => (
 
 const PvNode = ({ data }) => (
   <div style={nodeStyle}>
-    <Handle type="source" position={Position.Right} style={{ background: "#f0ad4e", width: 8, height: 8 }} />
+    <Handle id="top" type="source" position={Position.Top} style={{ background: "#f0ad4e", width: 8, height: 8 }} />
+    <Handle id="right" type="source" position={Position.Right} style={{ background: "#f0ad4e", width: 8, height: 8 }} />
+    <Handle id="bottom" type="source" position={Position.Bottom} style={{ background: "#f0ad4e", width: 8, height: 8 }} />
     <NodeLabel icon={<Sun size={18} color="#f0ad4e" />} label="PV" value={data.productionW} color="#f0ad4e" />
   </div>
 );
 
 const HausNode = ({ data }) => (
   <div style={nodeStyle}>
-    <Handle type="target" position={Position.Left} style={{ background: "#5aa9e6", width: 8, height: 8 }} />
-    <Handle type="source" position={Position.Left} style={{ background: "#b07de0", width: 8, height: 8 }} />
+    <Handle id="top" type="target" position={Position.Top} style={{ background: "#f0ad4e", width: 8, height: 8 }} />
+    <Handle id="left" type="target" position={Position.Left} style={{ background: "#3ec46d", width: 8, height: 8 }} />
+    <Handle id="bottom" type="target" position={Position.Bottom} style={{ background: "#5aa9e6", width: 8, height: 8 }} />
     <NodeLabel icon={<Home size={18} color="#5aa9e6" />} label="Haus" value={data.consumptionW} color="#5aa9e6" />
   </div>
 );
@@ -79,7 +82,7 @@ const BatterieNode = ({ data }) => {
 
 const NetzNode = ({ data }) => (
   <div style={nodeStyle}>
-    <Handle type="target" position={Position.Right} style={{ background: "#b07de0", width: 8, height: 8 }} />
+    <Handle type="target" position={Position.Left} style={{ background: "#b07de0", width: 8, height: 8 }} />
     <Handle type="source" position={Position.Right} style={{ background: "#5aa9e6", width: 8, height: 8 }} />
     <NodeLabel icon={<Zap size={18} color="#b07de0" />} label="Netz" value={data.gridImportPowerW} color="#b07de0" />
   </div>
@@ -87,9 +90,9 @@ const NetzNode = ({ data }) => (
 
 const customNodeTypes = { [nodeTypes.pv]: PvNode, [nodeTypes.haus]: HausNode, [nodeTypes.batterie]: BatterieNode, [nodeTypes.netz]: NetzNode };
 
-function makeEdge(id, source, target, w, color) {
+function makeEdge(id, source, target, w, color, sourceHandle, targetHandle) {
   const absW = Math.abs(w);
-  return {
+  const edge = {
     id, source, target, animated: absW > 5,
     style: {
       stroke: color,
@@ -97,6 +100,9 @@ function makeEdge(id, source, target, w, color) {
       opacity: Math.max(0.15, Math.min(1, absW / 400)),
     },
   };
+  if (sourceHandle) edge.sourceHandle = sourceHandle;
+  if (targetHandle) edge.targetHandle = targetHandle;
+  return edge;
 }
 
 export default function EnergyFlow({ status }) {
@@ -117,23 +123,23 @@ export default function EnergyFlow({ status }) {
 
     // PV → Haus (direkte Nutzung)
     const pvToHaus = productionW > 5 && consumptionW > 5 ? Math.min(productionW, consumptionW) : 0;
-    result.push(makeEdge("e-pv-haus", "pv", "haus", pvToHaus, "#f0ad4e"));
+    result.push(makeEdge("e-pv-haus", "pv", "haus", pvToHaus, "#f0ad4e", "right", "top"));
 
     // PV → Batterie (laden)
     const pvToBat = productionW > 5 && batteryChargePowerW > 5 ? Math.min(productionW, batteryChargePowerW) : 0;
-    result.push(makeEdge("e-pv-bat", "pv", "batterie", pvToBat, "#f0ad4e"));
+    result.push(makeEdge("e-pv-bat", "pv", "batterie", pvToBat, "#f0ad4e", "top"));
 
     // Batterie → Haus (entladen)
     const batToHaus = batteryChargePowerW < -5 && consumptionW > 5 ? Math.min(-batteryChargePowerW, consumptionW) : 0;
-    result.push(makeEdge("e-bat-haus", "batterie", "haus", batToHaus, "#3ec46d"));
+    result.push(makeEdge("e-bat-haus", "batterie", "haus", batToHaus, "#3ec46d", null, "left"));
 
     // Netz → Haus (Bezug)
     const netzToHaus = gridImportPowerW > 5 && consumptionW > 5 ? Math.min(gridImportPowerW, consumptionW) : 0;
-    result.push(makeEdge("e-netz-haus", "netz", "haus", netzToHaus, "#5aa9e6"));
+    result.push(makeEdge("e-netz-haus", "netz", "haus", netzToHaus, "#5aa9e6", null, "bottom"));
 
-    // Haus → Netz (Einspeisung)
-    const hausToNetz = gridImportPowerW < -5 ? -gridImportPowerW : 0;
-    result.push(makeEdge("e-haus-netz", "haus", "netz", hausToNetz, "#b07de0"));
+    // PV → Netz (Einspeisung)
+    const pvToNetz = gridImportPowerW < -5 ? -gridImportPowerW : 0;
+    result.push(makeEdge("e-pv-netz", "pv", "netz", pvToNetz, "#b07de0", "bottom"));
 
     return result;
   }, [productionW, consumptionW, gridImportPowerW, batteryChargePowerW]);
