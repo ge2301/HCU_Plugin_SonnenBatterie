@@ -38,7 +38,7 @@ const NodeLabel = ({ icon, label, subLabel, value, color }) => (
   <div style={{ display: "flex", alignItems: "center", gap: 10, width: "100%" }}>
     {icon}
     <div style={{ flex: 1 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color }}>{label}</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color }}>{label}</div>
       {subLabel && <div style={{ fontSize: 11, color: color, marginTop: 1 }}>{subLabel}</div>}
       {value != null && <div style={{ fontSize: 24, fontWeight: 700, color: "#8b9bad", marginTop: 2 }}>{typeof value === "number" ? Math.round(value) + " W" : value}</div>}
     </div>
