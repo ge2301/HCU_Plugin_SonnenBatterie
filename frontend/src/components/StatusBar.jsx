@@ -2,11 +2,11 @@ export default function StatusBar({ plugin, error, updatedAt }) {
   const readiness = plugin?.readiness ?? "UNKNOWN";
   const connected = plugin?.connectedToHcu;
 
-  const readinessLabel = {
-    READY: "Bereit",
-    CONFIG_REQUIRED: "Konfiguration erforderlich",
-    ERROR: "Fehler",
-    UNKNOWN: "Verbinde …",
+  const batteryLabel = {
+    READY: "Batterie: Erreichbar",
+    CONFIG_REQUIRED: "Batterie: Konfiguration fehlt",
+    ERROR: "Batterie: Nicht erreichbar",
+    UNKNOWN: "Batterie: Prüfe …",
   }[readiness];
 
   const readinessClass = {
@@ -18,11 +18,11 @@ export default function StatusBar({ plugin, error, updatedAt }) {
 
   return (
     <div className="statusbar">
-      <span className={`badge ${readinessClass}`}>{readinessLabel}</span>
+      <span className={`badge ${readinessClass}`}>{batteryLabel}</span>
       <span className={`badge ${connected ? "ok" : "muted"}`}>
-        HCU {connected ? "verbunden" : "getrennt"}
+        HCU: {connected ? "Verbunden" : "Getrennt"}
       </span>
-      {error && <span className="badge err">Dashboard: {error}</span>}
+      {error && <span className="badge err">{error}</span>}
       {updatedAt && (
         <span className="badge muted">
           Aktualisiert {updatedAt.toLocaleTimeString("de-DE")}
