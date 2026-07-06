@@ -3,6 +3,7 @@ import StatusBar from "./components/StatusBar.jsx";
 import SocGauge from "./components/SocGauge.jsx";
 import PowerCard from "./components/PowerCard.jsx";
 import EnergyFlow from "./components/EnergyFlow.jsx";
+import ConfigForm from "./components/ConfigForm.jsx";
 
 const POLL_MS = 5000;
 
@@ -10,6 +11,7 @@ export default function App() {
   const [state, setState] = useState(null);
   const [error, setError] = useState(null);
   const [updatedAt, setUpdatedAt] = useState(null);
+  const [tab, setTab] = useState("dashboard"); // "dashboard" | "config"
 
   const fetchState = useCallback(async () => {
     try {
@@ -30,8 +32,14 @@ export default function App() {
     return () => clearInterval(id);
   }, [fetchState]);
 
+  // After config save, refresh state immediately
+  useEffect(() => {
+    if (tab === "dashboard") fetchState();
+  }, [tab, fetchState]);
+
   const plugin = state?.plugin;
   const status = state?.status;
+  const config = state?.config;
 
   return (
     <div className="app">
@@ -45,63 +53,85 @@ export default function App() {
 
       <StatusBar plugin={plugin} error={error} updatedAt={updatedAt} />
 
-      {status && status.online !== false ? (
+      {/* Tab Navigation */}
+      <nav className="tabs">
+        <button
+          className={`tab ${tab === "dashboard" ? "active" : ""}`}
+          onClick={() => setTab("dashboard")}
+        >
+          📊 Dashboard
+        </button>
+        <button
+          className={`tab ${tab === "config" ? "active" : ""}`}
+          onClick={() => setTab("config")}
+        >
+          ⚙️ Konfiguration
+        </button>
+      </nav>
+
+      {tab === "dashboard" ? (
         <>
-          <section className="grid">
-            <SocGauge percent={status.stateOfChargePercent} />
-            <PowerCard
-              title="PV-Erzeugung"
-              value={status.productionW}
-              unit="W"
-              tone="production"
-            />
-            <PowerCard
-              title="Hausverbrauch"
-              value={status.consumptionW}
-              unit="W"
-              tone="consumption"
-            />
-            <PowerCard
-              title="Batterie"
-              value={status.batteryChargePowerW}
-              unit="W"
-              tone="battery"
-              hint={batteryHint(status.batteryChargePowerW)}
-            />
-            <PowerCard
-              title="Netz"
-              value={status.gridImportPowerW}
-              unit="W"
-              tone="grid"
-              hint={gridHint(status.gridImportPowerW)}
-            />
-          </section>
+          {status && status.online !== false ? (
+            <>
+              <section className="grid">
+                <SocGauge percent={status.stateOfChargePercent} />
+                <PowerCard
+                  title="PV-Erzeugung"
+                  value={status.productionW}
+                  unit="W"
+                  tone="production"
+                />
+                <PowerCard
+                  title="Hausverbrauch"
+                  value={status.consumptionW}
+                  unit="W"
+                  tone="consumption"
+                />
+                <PowerCard
+                  title="Batterie"
+                  value={status.batteryChargePowerW}
+                  unit="W"
+                  tone="battery"
+                  hint={batteryHint(status.batteryChargePowerW)}
+                />
+                <PowerCard
+                  title="Netz"
+                  value={status.gridImportPowerW}
+                  unit="W"
+                  tone="grid"
+                  hint={gridHint(status.gridImportPowerW)}
+                />
+              </section>
 
-          <EnergyFlow status={status} />
+              <EnergyFlow status={status} />
 
-          <section className="details">
-            <h2>Details</h2>
-            <dl>
-              <Detail label="Systemstatus" value={status.systemStatus ?? "–"} />
-              <Detail
-                label="Restkapazität"
-                value={status.remainingCapacityWh != null ? `${status.remainingCapacityWh} Wh` : "–"}
-              />
-              <Detail label="USOC" value={fmt(status.usoc, "%")} />
-              <Detail label="RSOC" value={fmt(status.rsoc, "%")} />
-              <Detail label="Letzte Messung" value={status.timestamp ?? "–"} />
-            </dl>
-          </section>
+              <section className="details">
+                <h2>Details</h2>
+                <dl>
+                  <Detail label="Systemstatus" value={status.systemStatus ?? "–"} />
+                  <Detail
+                    label="Restkapazität"
+                    value={status.remainingCapacityWh != null ? `${status.remainingCapacityWh} Wh` : "–"}
+                  />
+                  <Detail label="USOC" value={fmt(status.usoc, "%")} />
+                  <Detail label="RSOC" value={fmt(status.rsoc, "%")} />
+                  <Detail label="Letzte Messung" value={status.timestamp ?? "–"} />
+                </dl>
+              </section>
+            </>
+          ) : (
+            <section className="placeholder">
+              <p>
+                {plugin && !plugin.configured
+                  ? 'Noch nicht konfiguriert. Gehe zum "Konfiguration"-Tab, um IP-Adresse und Token einzutragen.'
+                  : "Warte auf Daten der sonnenBatterie …"}
+              </p>
+              {plugin?.lastError && <p className="err-detail">Letzter Fehler: {plugin.lastError}</p>}
+            </section>
+          )}
         </>
       ) : (
-        <section className="placeholder">
-          <p>
-            {plugin && !plugin.configured
-              ? "Das Plugin ist noch nicht konfiguriert. Bitte IP-Adresse und Token der sonnenBatterie in HCUweb hinterlegen."
-              : "Warte auf Daten der sonnenBatterie …"}
-          </p>
-          {plugin?.lastError && <p className="err-detail">Letzter Fehler: {plugin.lastError}</p>}
-        </section>
+        <ConfigForm initialConfig={config} onSave={fetchState} />
       )}
     </div>
   );

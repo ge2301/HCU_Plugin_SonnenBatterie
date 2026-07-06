@@ -18,12 +18,16 @@ const { startDashboard } = require("./dashboard");
  */
 async function main() {
 	const [, , pluginId, host, authTokenFile] = process.argv;
-	if (!pluginId || !host || !authTokenFile) {
-		logger.error("Usage: node src/index.js <pluginId> <hcuHost> <authTokenFile>");
-		process.exit(1);
-	}
 
-	const authToken = (await fs.readFile(authTokenFile, "utf8")).trim();
+	// Local dev mode: no CLI args required → dashboard only, no HCU connection
+	const localDev = !pluginId || !host || !authTokenFile;
+
+	let authToken = "";
+	if (!localDev) {
+		authToken = (await fs.readFile(authTokenFile, "utf8")).trim();
+	} else {
+		logger.info("Starting in local dev mode (no HCU connection, dashboard only)");
+	}
 
 	// Mutable runtime state -------------------------------------------------
 	let config = configModule.load();
@@ -59,32 +63,33 @@ async function main() {
 		};
 	}
 
-	// HCU client ------------------------------------------------------------
-	const hcu = new HcuClient({
-		pluginId,
-		host,
-		authToken,
-		callbacks: {
-			getReadiness: currentReadiness,
-			getDevices: currentDevices,
-			getConfigTemplate: () => configModule.buildTemplate(config),
-			onConfigUpdate: async (properties) => {
-				config = configModule.applyUpdate(config, properties);
-				configModule.save(config);
-				logger.info("Configuration updated via HCU");
-				restartPolling();
-				// Trigger an immediate poll so devices update quickly.
-				await pollOnce();
-				if (!configModule.isConfigured(config)) {
-					return { status: "APPLIED", message: "Bitte IP-Adresse und Token der sonnenBatterie angeben." };
-				}
-				if (lastError) {
-					return { status: "APPLIED", message: `Konfiguration gespeichert, aber Batterie nicht erreichbar: ${lastError}` };
-				}
-				return { status: "APPLIED", message: "Verbindung zur sonnenBatterie erfolgreich." };
+	// HCU client (only when not in local dev mode)
+	const hcu = localDev
+		? null
+		: new HcuClient({
+			pluginId,
+			host,
+			authToken,
+			callbacks: {
+				getReadiness: currentReadiness,
+				getDevices: currentDevices,
+				getConfigTemplate: () => configModule.buildTemplate(config),
+				onConfigUpdate: async (properties) => {
+					config = configModule.applyUpdate(config, properties);
+					configModule.save(config);
+					logger.info("Configuration updated via HCU");
+					restartPolling();
+					await pollOnce();
+					if (!configModule.isConfigured(config)) {
+						return { status: "APPLIED", message: "Bitte IP-Adresse und Token der sonnenBatterie angeben." };
+					}
+					if (lastError) {
+						return { status: "APPLIED", message: `Konfiguration gespeichert, aber Batterie nicht erreichbar: ${lastError}` };
+					}
+					return { status: "APPLIED", message: "Verbindung zur sonnenBatterie erfolgreich." };
+				},
 			},
-		},
-	});
+		});
 
 	// Polling ---------------------------------------------------------------
 	async function pollOnce() {
@@ -96,8 +101,10 @@ async function main() {
 			const status = await sonnenClient.fetchStatus(config);
 			lastStatus = status;
 			lastError = null;
-			const events = deviceMapper.buildStatusEvents(status, config);
-			hcu.sendStatusEvents(events);
+			if (hcu) {
+				const events = deviceMapper.buildStatusEvents(status, config);
+				hcu.sendStatusEvents(events);
+			}
 			logger.info(
 				`Sonnen update: SOC ${status.stateOfChargePercent}% | PV ${status.productionW}W | ` +
 					`Verbrauch ${status.consumptionW}W | Netz ${status.gridImportPowerW}W | Batterie ${status.batteryChargePowerW}W`
@@ -105,7 +112,7 @@ async function main() {
 		} catch (err) {
 			lastError = err.message;
 			logger.error(`Failed to poll sonnenBatterie: ${err.message}`);
-			hcu.pushReadiness();
+			if (hcu) hcu.pushReadiness();
 		}
 	}
 
@@ -117,10 +124,27 @@ async function main() {
 	}
 
 	// Dashboard -------------------------------------------------------------
-	startDashboard({ port: config.dashboardPort || 8090, getState: dashboardState });
+	startDashboard({
+		port: config.dashboardPort || 8090,
+		getState: dashboardState,
+		onConfigSave: async (body) => {
+			config = configModule.applyUpdate(config, body);
+			configModule.save(config);
+			logger.info("Configuration saved via dashboard");
+			restartPolling();
+			await pollOnce();
+			if (!configModule.isConfigured(config)) {
+				return { status: "ok", message: "Konfiguration gespeichert. Bitte IP-Adresse und Token prüfen." };
+			}
+			if (lastError) {
+				return { status: "ok", message: `Gespeichert, aber Batterie nicht erreichbar: ${lastError}` };
+			}
+			return { status: "ok", message: "Verbindung zur sonnenBatterie erfolgreich." };
+		},
+	});
 
 	// Start -----------------------------------------------------------------
-	hcu.connect();
+	if (hcu) hcu.connect();
 	restartPolling();
 	await pollOnce();
 
@@ -128,7 +152,7 @@ async function main() {
 	function shutdown() {
 		logger.info("Shutting down plugin");
 		if (pollTimer) clearInterval(pollTimer);
-		hcu.stop();
+		if (hcu) hcu.stop();
 		process.exit(0);
 	}
 	process.on("SIGINT", shutdown);
