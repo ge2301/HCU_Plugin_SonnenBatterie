@@ -14,8 +14,8 @@ const NODE_POSITIONS = {
 };
 
 const nodeStyle = {
-  width: 200,
-  height: 90,
+  width: 220,
+  height: 100,
   borderRadius: 14,
   padding: "10px 16px",
   display: "flex",
@@ -40,7 +40,7 @@ const NodeLabel = ({ icon, label, subLabel, value, color }) => (
     <div style={{ flex: 1 }}>
       <div style={{ fontSize: 13, fontWeight: 600, color }}>{label}</div>
       {subLabel && <div style={{ fontSize: 11, color: color, marginTop: 1 }}>{subLabel}</div>}
-      {value != null && <div style={{ fontSize: 12, color: "#8b9bad", marginTop: 1 }}>{typeof value === "number" ? Math.round(value) + " W" : value}</div>}
+      {value != null && <div style={{ fontSize: 24, fontWeight: 700, color: "#8b9bad", marginTop: 2 }}>{typeof value === "number" ? Math.round(value) + " W" : value}</div>}
     </div>
   </div>
 );
@@ -52,7 +52,7 @@ const PvNode = ({ data }) => (
     <HandleDot id="bat" type="source" position={Position.Top} />
     <HandleDot id="haus" type="source" position={Position.Right} />
     <HandleDot id="netz" type="source" position={Position.Bottom} />
-    <NodeLabel icon={<Sun size={36} color="#f0ad4e" />} label="PV" subLabel="Erzeugung" value={data.productionW} color="#f0ad4e" />
+    <NodeLabel icon={<Sun size={47} color="#f0ad4e" />} label="PV" subLabel="Erzeugung" value={data.productionW} color="#f0ad4e" />
   </div>
 );
 
@@ -61,7 +61,7 @@ const HausNode = ({ data }) => (
     <HandleDot id="pv" type="target" position={Position.Left} />
     <HandleDot id="bat" type="target" position={Position.Top} />
     <HandleDot id="netz" type="target" position={Position.Bottom} />
-    <NodeLabel icon={<Home size={36} color="#5aa9e6" />} label="Haus" subLabel="Verbrauch" value={data.consumptionW} color="#5aa9e6" />
+    <NodeLabel icon={<Home size={47} color="#5aa9e6" />} label="Haus" subLabel="Verbrauch" value={data.consumptionW} color="#5aa9e6" />
   </div>
 );
 
@@ -76,20 +76,21 @@ const BatterieNode = ({ data }) => {
   else if (soc >= 50) Icon = BatteryMedium;
   else if (soc >= 10) Icon = BatteryLow;
   const socColor = soc > 50 ? "#3ec46d" : soc > 20 ? "#f0ad4e" : "#e0533d";
-  const status = isCharging
-    ? `lädt · ${Math.round(chargeW)} W`
+  const statusHint = isCharging
+    ? ` · lädt`
     : isDischarging
-    ? `entlädt · ${Math.round(-chargeW)} W`
-    : "im Ruhezustand";
+    ? ` · entlädt`
+    : ` · im Ruhezustand`;
+  const absW = isCharging ? chargeW : isDischarging ? -chargeW : 0;
   return (
     <div style={nodeStyle}>
       <HandleDot id="pv" type="target" position={Position.Left} />
       <HandleDot id="haus" type="source" position={Position.Right} />
       <NodeLabel
-        icon={<Icon size={36} color={socColor} />}
+        icon={<Icon size={47} color={socColor} />}
         label="Batterie"
-        subLabel={`Ladestand: ${Math.round(soc)} %`}
-        value={status}
+        subLabel={`${Math.round(soc)} %${statusHint}`}
+        value={absW}
         color={socColor}
       />
     </div>
@@ -116,7 +117,7 @@ const NetzNode = ({ data }) => {
       <HandleDot id="pv" type="target" position={Position.Left} />
       <HandleDot id="haus" type="source" position={Position.Right} />
       <NodeLabel
-        icon={<Zap size={36} color="#b07de0" />}
+        icon={<Zap size={47} color="#b07de0" />}
         label="Netz"
         subLabel={subLabel}
         value={Math.abs(gridW)}
