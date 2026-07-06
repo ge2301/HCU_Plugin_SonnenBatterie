@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from "react";
-import { LayoutDashboard, Settings } from "lucide-react";
+import { LayoutDashboard, Settings, BookOpen } from "lucide-react";
 import StatusBar from "./components/StatusBar.jsx";
 import SocGauge from "./components/SocGauge.jsx";
 import PowerCard from "./components/PowerCard.jsx";
 import EnergyFlow from "./components/EnergyFlow.jsx";
 import ConfigForm from "./components/ConfigForm.jsx";
+import DocsTab from "./components/DocsTab.jsx";
 
 const POLL_MS = 5000;
 
@@ -69,6 +70,12 @@ export default function App() {
         >
           <Settings size={18} className="inline-icon" /> Konfiguration
         </button>
+        <button
+          className={`tab ${tab === "docs" ? "active" : ""}`}
+          onClick={() => setTab("docs")}
+        >
+          <BookOpen size={18} className="inline-icon" /> Dokumentation
+        </button>
       </nav>
 
       {tab === "dashboard" ? (
@@ -132,8 +139,10 @@ export default function App() {
             </section>
           )}
         </>
-      ) : (
+      ) : tab === "config" ? (
         <ConfigForm initialConfig={config} onSave={fetchState} />
+      ) : (
+        <DocsTab />
       )}
     </div>
   );

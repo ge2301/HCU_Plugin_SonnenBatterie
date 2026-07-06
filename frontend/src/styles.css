@@ -413,3 +413,134 @@ code {
   border-radius: 4px;
   font-size: 0.82rem;
 }
+
+/* ── Documentation Tab ───────────────────────────────────── */
+.docs {
+  max-width: 720px;
+}
+
+.docs-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.docs-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+.docs-icon {
+  color: var(--accent);
+}
+
+.docs-section {
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.docs-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+.docs-section h3 .inline-icon {
+  margin-right: 0;
+}
+
+.docs-step {
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.docs-step ol,
+.docs-step ul {
+  padding-left: 20px;
+  margin: 10px 0;
+}
+
+.docs-step li {
+  margin-bottom: 6px;
+}
+
+.docs-step p {
+  margin: 0 0 10px;
+}
+
+.docs-tip,
+.docs-warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin-top: 14px;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.docs-tip {
+  background: rgba(62, 196, 109, 0.12);
+  color: var(--ok);
+}
+
+.docs-warn {
+  background: rgba(240, 173, 78, 0.12);
+  color: var(--warn);
+}
+
+.docs-tip .inline-icon,
+.docs-warn .inline-icon {
+  margin-right: 0;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.docs-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 12px 0;
+  font-size: 0.85rem;
+}
+
+.docs-table th,
+.docs-table td {
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.docs-table th {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.docs-table td {
+  color: var(--text);
+}
+
+.docs-footer {
+  text-align: center;
+  padding: 20px 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.docs-footer a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.docs-footer a:hover {
+  text-decoration: underline;
+}
