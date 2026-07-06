@@ -7,15 +7,15 @@ const nodeTypes = { pv: "pv", haus: "haus", batterie: "batterie", netz: "netz" }
 const edgeTypes = { step: StepEdge };
 
 const NODE_POSITIONS = {
-  pv: { x: 20, y: 100 },
-  batterie: { x: 250, y: 20 },
-  netz: { x: 250, y: 180 },
-  haus: { x: 480, y: 100 },
+  pv: { x: 20, y: 120 },
+  batterie: { x: 260, y: 20 },
+  netz: { x: 260, y: 260 },
+  haus: { x: 520, y: 120 },
 };
 
 const nodeStyle = {
-  width: 180,
-  height: 80,
+  width: 200,
+  height: 90,
   borderRadius: 14,
   padding: "10px 16px",
   display: "flex",
@@ -34,12 +34,13 @@ const nodeStyle = {
   position: "relative",
 };
 
-const NodeLabel = ({ icon, label, value, color }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 8, width: "100%" }}>
+const NodeLabel = ({ icon, label, subLabel, value, color }) => (
+  <div style={{ display: "flex", alignItems: "center", gap: 10, width: "100%" }}>
     {icon}
     <div style={{ flex: 1 }}>
-      <div style={{ fontSize: 12, fontWeight: 600, color }}>{label}</div>
-      {value != null && <div style={{ fontSize: 11, color: "#8b9bad", marginTop: 1 }}>{Math.round(value)} W</div>}
+      <div style={{ fontSize: 13, fontWeight: 600, color }}>{label}</div>
+      {subLabel && <div style={{ fontSize: 11, color: color, marginTop: 1 }}>{subLabel}</div>}
+      {value != null && <div style={{ fontSize: 12, color: "#8b9bad", marginTop: 1 }}>{typeof value === "number" ? Math.round(value) + " W" : value}</div>}
     </div>
   </div>
 );
@@ -51,7 +52,7 @@ const PvNode = ({ data }) => (
     <HandleDot id="bat" type="source" position={Position.Top} />
     <HandleDot id="haus" type="source" position={Position.Right} />
     <HandleDot id="netz" type="source" position={Position.Bottom} />
-    <NodeLabel icon={<Sun size={36} color="#f0ad4e" />} label="PV" value={data.productionW} color="#f0ad4e" />
+    <NodeLabel icon={<Sun size={36} color="#f0ad4e" />} label="PV" subLabel="Erzeugung" value={data.productionW} color="#f0ad4e" />
   </div>
 );
 
@@ -60,7 +61,7 @@ const HausNode = ({ data }) => (
     <HandleDot id="pv" type="target" position={Position.Left} />
     <HandleDot id="bat" type="target" position={Position.Top} />
     <HandleDot id="netz" type="target" position={Position.Bottom} />
-    <NodeLabel icon={<Home size={36} color="#5aa9e6" />} label="Haus" value={data.consumptionW} color="#5aa9e6" />
+    <NodeLabel icon={<Home size={36} color="#5aa9e6" />} label="Haus" subLabel="Verbrauch" value={data.consumptionW} color="#5aa9e6" />
   </div>
 );
 
@@ -78,18 +79,31 @@ const BatterieNode = ({ data }) => {
     <div style={nodeStyle}>
       <HandleDot id="pv" type="target" position={Position.Left} />
       <HandleDot id="haus" type="source" position={Position.Right} />
-      <NodeLabel icon={<Icon size={36} color={socColor} />} label="Batterie" value={chargeW} color={socColor} />
+      <NodeLabel
+        icon={<Icon size={36} color={socColor} />}
+        label="Batterie"
+        subLabel={`Ladestand: ${Math.round(data.stateOfChargePercent)} %`}
+        value={chargeW}
+        color={socColor}
+      />
     </div>
   );
 };
 
-const NetzNode = ({ data }) => (
-  <div style={nodeStyle}>
-    <HandleDot id="pv" type="target" position={Position.Left} />
-    <HandleDot id="haus" type="source" position={Position.Right} />
-    <NodeLabel icon={<Zap size={36} color="#b07de0" />} label="Netz" value={data.gridImportPowerW} color="#b07de0" />
-  </div>
-);
+const NetzNode = ({ data }) => {
+  const gridW = data.gridImportPowerW;
+  const isImport = gridW > 5;
+  const isExport = gridW < -5;
+  const label = isExport ? `Einspeisung: ${Math.round(-gridW)} W` : isImport ? `Bezug: ${Math.round(gridW)} W` : "Ausgeglichen";
+  const color = isExport ? "#b07de0" : isImport ? "#5aa9e6" : "#8b9bad";
+  return (
+    <div style={nodeStyle}>
+      <HandleDot id="pv" type="target" position={Position.Left} />
+      <HandleDot id="haus" type="source" position={Position.Right} />
+      <NodeLabel icon={<Zap size={36} color="#b07de0" />} label="Netz" subLabel={label} color={color} />
+    </div>
+  );
+};
 
 const customNodeTypes = { [nodeTypes.pv]: PvNode, [nodeTypes.haus]: HausNode, [nodeTypes.batterie]: BatterieNode, [nodeTypes.netz]: NetzNode };
 
@@ -157,7 +171,7 @@ export default function EnergyFlow({ status }) {
   useEffect(() => {
     if (!reactFlowInstance || !reactFlowWrapper.current) return;
     const observer = new ResizeObserver(() => {
-      reactFlowInstance.fitView({ padding: 0.3 });
+      reactFlowInstance.fitView({ padding: 0.15 });
     });
     observer.observe(reactFlowWrapper.current);
     return () => observer.disconnect();
@@ -179,9 +193,9 @@ export default function EnergyFlow({ status }) {
           onEdgesChange={onEdgesChange}
           onInit={(instance) => {
             setReactFlowInstance(instance);
-            instance.fitView({ padding: 0.3 });
+            instance.fitView({ padding: 0.15 });
           }}
-          fitViewOptions={{ padding: 0.3 }}
+          fitViewOptions={{ padding: 0.15 }}
           proOptions={{ hideAttribution: true }}
           minZoom={0.5}
           maxZoom={2}
