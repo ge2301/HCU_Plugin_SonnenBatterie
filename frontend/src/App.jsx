@@ -46,7 +46,7 @@ export default function App() {
   return (
     <div className="app">
       <header className="header">
-        <img src="./sun.svg" alt="" className="logo" />
+        <img src="./sonnen-logo.svg" alt="sonnen" className="logo" />
         <div>
           <h1>sonnenBatterie</h1>
           <span className="subtitle">Homematic IP Connect Plugin</span>
