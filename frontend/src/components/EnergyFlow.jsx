@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useRef, useState, useEffect } from "react";
 import { ReactFlow, Background, Handle, Position, StepEdge } from "reactflow";
 import "reactflow/dist/style.css";
 import { Zap, Sun, Home, Battery, BatteryCharging, BatteryFull, BatteryMedium, BatteryLow } from "lucide-react";
@@ -151,13 +151,25 @@ export default function EnergyFlow({ status }) {
   const onNodesChange = useCallback(() => {}, []);
   const onEdgesChange = useCallback(() => {}, []);
 
+  const reactFlowWrapper = useRef(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState(null);
+
+  useEffect(() => {
+    if (!reactFlowInstance || !reactFlowWrapper.current) return;
+    const observer = new ResizeObserver(() => {
+      reactFlowInstance.fitView({ padding: 0.3 });
+    });
+    observer.observe(reactFlowWrapper.current);
+    return () => observer.disconnect();
+  }, [reactFlowInstance]);
+
   return (
     <section className="flow">
       <h2>
         <Zap size={20} className="card-icon" />
         Energiefluss
       </h2>
-      <div className="reactflow-container">
+      <div ref={reactFlowWrapper} className="reactflow-container">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -165,8 +177,11 @@ export default function EnergyFlow({ status }) {
           edgeTypes={edgeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
-          fitView
-          fitViewOptions={{ padding: 0.25 }}
+          onInit={(instance) => {
+            setReactFlowInstance(instance);
+            instance.fitView({ padding: 0.3 });
+          }}
+          fitViewOptions={{ padding: 0.3 }}
           proOptions={{ hideAttribution: true }}
           minZoom={0.5}
           maxZoom={2}
