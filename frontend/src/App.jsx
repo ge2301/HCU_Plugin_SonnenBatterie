@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import { LayoutDashboard, Settings, BookOpen } from "lucide-react";
+import { LayoutDashboard, Settings, BookOpen, Sun, Home, Zap } from "lucide-react";
 import StatusBar from "./components/StatusBar.jsx";
-import SocGauge from "./components/SocGauge.jsx";
+import BatteryCard from "./components/SocGauge.jsx";
 import PowerCard from "./components/PowerCard.jsx";
 import EnergyFlow from "./components/EnergyFlow.jsx";
 import ConfigForm from "./components/ConfigForm.jsx";
@@ -83,31 +83,30 @@ export default function App() {
           {status && status.online !== false ? (
             <>
               <section className="grid">
-                <SocGauge percent={status.stateOfChargePercent} />
+                <BatteryCard
+                  percent={status.stateOfChargePercent}
+                  powerW={status.batteryChargePowerW}
+                />
                 <PowerCard
                   title="PV-Erzeugung"
                   value={status.productionW}
                   unit="W"
                   tone="production"
+                  icon={Sun}
                 />
                 <PowerCard
                   title="Hausverbrauch"
                   value={status.consumptionW}
                   unit="W"
                   tone="consumption"
-                />
-                <PowerCard
-                  title="Batterie"
-                  value={status.batteryChargePowerW}
-                  unit="W"
-                  tone="battery"
-                  hint={batteryHint(status.batteryChargePowerW)}
+                  icon={Home}
                 />
                 <PowerCard
                   title="Netz"
                   value={status.gridImportPowerW}
                   unit="W"
                   tone="grid"
+                  icon={Zap}
                   hint={gridHint(status.gridImportPowerW)}
                 />
               </section>
