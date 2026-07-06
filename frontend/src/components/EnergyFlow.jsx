@@ -44,20 +44,22 @@ const NodeLabel = ({ icon, label, value, color }) => (
   </div>
 );
 
+const HandleDot = (props) => <Handle {...props} style={{ background: "transparent", width: 0, height: 0, border: "none" }} />;
+
 const PvNode = ({ data }) => (
   <div style={nodeStyle}>
-    <Handle id="bat" type="source" position={Position.Top} style={{ background: "#f0ad4e", width: 8, height: 8 }} />
-    <Handle id="haus" type="source" position={Position.Right} style={{ background: "#f0ad4e", width: 8, height: 8 }} />
-    <Handle id="netz" type="source" position={Position.Bottom} style={{ background: "#b07de0", width: 8, height: 8 }} />
+    <HandleDot id="bat" type="source" position={Position.Top} />
+    <HandleDot id="haus" type="source" position={Position.Right} />
+    <HandleDot id="netz" type="source" position={Position.Bottom} />
     <NodeLabel icon={<Sun size={18} color="#f0ad4e" />} label="PV" value={data.productionW} color="#f0ad4e" />
   </div>
 );
 
 const HausNode = ({ data }) => (
   <div style={nodeStyle}>
-    <Handle id="pv" type="target" position={Position.Left} style={{ background: "#f0ad4e", width: 8, height: 8 }} />
-    <Handle id="bat" type="target" position={Position.Top} style={{ background: "#3ec46d", width: 8, height: 8 }} />
-    <Handle id="netz" type="target" position={Position.Bottom} style={{ background: "#5aa9e6", width: 8, height: 8 }} />
+    <HandleDot id="pv" type="target" position={Position.Left} />
+    <HandleDot id="bat" type="target" position={Position.Top} />
+    <HandleDot id="netz" type="target" position={Position.Bottom} />
     <NodeLabel icon={<Home size={18} color="#5aa9e6" />} label="Haus" value={data.consumptionW} color="#5aa9e6" />
   </div>
 );
@@ -74,8 +76,8 @@ const BatterieNode = ({ data }) => {
   const socColor = soc > 50 ? "#3ec46d" : soc > 20 ? "#f0ad4e" : "#e0533d";
   return (
     <div style={nodeStyle}>
-      <Handle id="pv" type="target" position={Position.Left} style={{ background: "#f0ad4e", width: 8, height: 8 }} />
-      <Handle id="haus" type="source" position={Position.Right} style={{ background: "#3ec46d", width: 8, height: 8 }} />
+      <HandleDot id="pv" type="target" position={Position.Left} />
+      <HandleDot id="haus" type="source" position={Position.Right} />
       <NodeLabel icon={<Icon size={18} color={socColor} />} label="Batterie" value={chargeW} color={socColor} />
     </div>
   );
@@ -83,8 +85,8 @@ const BatterieNode = ({ data }) => {
 
 const NetzNode = ({ data }) => (
   <div style={nodeStyle}>
-    <Handle id="pv" type="target" position={Position.Left} style={{ background: "#b07de0", width: 8, height: 8 }} />
-    <Handle id="haus" type="source" position={Position.Right} style={{ background: "#5aa9e6", width: 8, height: 8 }} />
+    <HandleDot id="pv" type="target" position={Position.Left} />
+    <HandleDot id="haus" type="source" position={Position.Right} />
     <NodeLabel icon={<Zap size={18} color="#b07de0" />} label="Netz" value={data.gridImportPowerW} color="#b07de0" />
   </div>
 );
