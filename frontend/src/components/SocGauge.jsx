@@ -1,7 +1,21 @@
-import { Battery } from "lucide-react";
+import { Battery, BatteryFull, BatteryMedium, BatteryLow, BatteryCharging } from "lucide-react";
 
 export default function BatteryCard({ percent, powerW }) {
   const value = percent == null ? 0 : Math.min(100, Math.max(0, percent));
+
+  // Choose battery icon that matches the state of charge
+  const isCharging = powerW != null && powerW > 5;
+  let BatteryIcon = Battery;
+  if (isCharging) {
+    BatteryIcon = BatteryCharging;
+  } else if (value >= 90) {
+    BatteryIcon = BatteryFull;
+  } else if (value >= 50) {
+    BatteryIcon = BatteryMedium;
+  } else if (value >= 10) {
+    BatteryIcon = BatteryLow;
+  }
+
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - value / 100);
@@ -19,7 +33,7 @@ export default function BatteryCard({ percent, powerW }) {
   return (
     <div className="card battery-card">
       <h3>
-        <Battery size={20} className="card-icon" />
+        <BatteryIcon size={20} className="card-icon" />
         Batterie
       </h3>
       <svg viewBox="0 0 140 140" className="gauge">
