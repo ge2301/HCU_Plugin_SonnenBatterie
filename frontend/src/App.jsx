@@ -22,8 +22,9 @@ export default function App() {
       setState(data);
       setError(null);
       setUpdatedAt(new Date());
-    } catch (err) {
-      setError(err.message);
+    } catch {
+      // Backend nicht erreichbar — kein Crash, nur Status-Meldung
+      setError("Backend nicht erreichbar. Starte zuerst: node src/index.js");
     }
   }, []);
 

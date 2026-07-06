@@ -99,10 +99,10 @@ function serveStatic(res, urlPath) {
  */
 function startDashboard({ port, getState, onConfigSave }) {
 	const server = http.createServer((req, res) => {
-		reqMethod = req.method;
+		const method = req.method;
 		const urlPath = decodeURIComponent((req.url || "/").split("?")[0]);
 
-		if (reqMethod === "OPTIONS") {
+		if (method === "OPTIONS") {
 			res.writeHead(204, {
 				"Access-Control-Allow-Origin": "*",
 				"Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -120,7 +120,7 @@ function startDashboard({ port, getState, onConfigSave }) {
 			sendJson(res, 200, { status: "ok" });
 			return;
 		}
-		if (urlPath === "/api/config" && reqMethod === "POST") {
+		if (urlPath === "/api/config" && method === "POST") {
 			readBody(req)
 				.then((body) => {
 					if (!onConfigSave) {
