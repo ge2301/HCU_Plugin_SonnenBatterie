@@ -39,9 +39,10 @@ body {
 }
 
 .logo {
-  height: 36px;
+  height: 48px;
   width: auto;
   flex-shrink: 0;
+  filter: invert(1);
 }
 
 h1 {
