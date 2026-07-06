@@ -69,12 +69,18 @@ const BatterieNode = ({ data }) => {
   const soc = data.stateOfChargePercent;
   const chargeW = data.batteryChargePowerW;
   const isCharging = chargeW > 5;
+  const isDischarging = chargeW < -5;
   let Icon = Battery;
   if (isCharging) Icon = BatteryCharging;
   else if (soc >= 90) Icon = BatteryFull;
   else if (soc >= 50) Icon = BatteryMedium;
   else if (soc >= 10) Icon = BatteryLow;
   const socColor = soc > 50 ? "#3ec46d" : soc > 20 ? "#f0ad4e" : "#e0533d";
+  const status = isCharging
+    ? `lädt · ${Math.round(chargeW)} W`
+    : isDischarging
+    ? `entlädt · ${Math.round(-chargeW)} W`
+    : "im Ruhezustand";
   return (
     <div style={nodeStyle}>
       <HandleDot id="pv" type="target" position={Position.Left} />
@@ -82,8 +88,8 @@ const BatterieNode = ({ data }) => {
       <NodeLabel
         icon={<Icon size={36} color={socColor} />}
         label="Batterie"
-        subLabel={`Ladestand: ${Math.round(data.stateOfChargePercent)} %`}
-        value={chargeW}
+        subLabel={`Ladestand: ${Math.round(soc)} %`}
+        value={status}
         color={socColor}
       />
     </div>
@@ -94,13 +100,28 @@ const NetzNode = ({ data }) => {
   const gridW = data.gridImportPowerW;
   const isImport = gridW > 5;
   const isExport = gridW < -5;
-  const label = isExport ? `Einspeisung: ${Math.round(-gridW)} W` : isImport ? `Bezug: ${Math.round(gridW)} W` : "Ausgeglichen";
-  const color = isExport ? "#b07de0" : isImport ? "#5aa9e6" : "#8b9bad";
+  let subLabel, color;
+  if (isExport) {
+    subLabel = "Einspeisung";
+    color = "#b07de0";
+  } else if (isImport) {
+    subLabel = "Bezug";
+    color = "#5aa9e6";
+  } else {
+    subLabel = "Ausgeglichen";
+    color = "#8b9bad";
+  }
   return (
     <div style={nodeStyle}>
       <HandleDot id="pv" type="target" position={Position.Left} />
       <HandleDot id="haus" type="source" position={Position.Right} />
-      <NodeLabel icon={<Zap size={36} color="#b07de0" />} label="Netz" subLabel={label} color={color} />
+      <NodeLabel
+        icon={<Zap size={36} color="#b07de0" />}
+        label="Netz"
+        subLabel={subLabel}
+        value={Math.abs(gridW)}
+        color={color}
+      />
     </div>
   );
 };
