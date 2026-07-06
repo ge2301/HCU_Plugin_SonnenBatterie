@@ -211,13 +211,24 @@ h1 {
   overflow-x: auto;
 }
 
-.flow-svg {
+.reactflow-container {
   width: 100%;
-  min-width: 500px;
-  max-width: 800px;
-  height: 200px;
-  display: block;
-  margin: 0 auto;
+  height: 260px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+/* Override ReactFlow defaults for dark theme */
+.reactflow-container .react-flow__node {
+  pointer-events: none;
+}
+
+.reactflow-container .react-flow__edge-path {
+  stroke-width: 2;
+}
+
+.reactflow-container .react-flow__attribution {
+  display: none;
 }
 
 dl {
