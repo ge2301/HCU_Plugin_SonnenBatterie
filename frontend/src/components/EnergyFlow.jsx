@@ -1,15 +1,15 @@
 import { useCallback, useMemo } from "react";
-import { ReactFlow, Background, MarkerType, Handle, Position } from "reactflow";
+import { ReactFlow, Background, Handle, Position } from "reactflow";
 import "reactflow/dist/style.css";
 import { Zap, Sun, Home, Battery, BatteryCharging, BatteryFull, BatteryMedium, BatteryLow } from "lucide-react";
 
 const nodeTypes = { pv: "pv", haus: "haus", batterie: "batterie", netz: "netz" };
 
 const NODE_POSITIONS = {
-  pv: { x: 30, y: 100 },
-  batterie: { x: 260, y: 10 },
-  haus: { x: 260, y: 100 },
-  netz: { x: 490, y: 100 },
+  pv: { x: 20, y: 100 },
+  batterie: { x: 250, y: 20 },
+  netz: { x: 250, y: 180 },
+  haus: { x: 480, y: 100 },
 };
 
 const nodeStyle = {
@@ -53,8 +53,7 @@ const PvNode = ({ data }) => (
 const HausNode = ({ data }) => (
   <div style={nodeStyle}>
     <Handle type="target" position={Position.Left} style={{ background: "#5aa9e6", width: 8, height: 8 }} />
-    <Handle type="source" position={Position.Right} style={{ background: "#5aa9e6", width: 8, height: 8 }} />
-    <Handle type="target" position={Position.Top} style={{ background: "#3ec46d", width: 8, height: 8 }} />
+    <Handle type="source" position={Position.Left} style={{ background: "#b07de0", width: 8, height: 8 }} />
     <NodeLabel icon={<Home size={18} color="#5aa9e6" />} label="Haus" value={data.consumptionW} color="#5aa9e6" />
   </div>
 );
@@ -72,7 +71,7 @@ const BatterieNode = ({ data }) => {
   return (
     <div style={nodeStyle}>
       <Handle type="target" position={Position.Left} style={{ background: "#f0ad4e", width: 8, height: 8 }} />
-      <Handle type="source" position={Position.Bottom} style={{ background: "#3ec46d", width: 8, height: 8 }} />
+      <Handle type="source" position={Position.Right} style={{ background: "#3ec46d", width: 8, height: 8 }} />
       <NodeLabel icon={<Icon size={18} color={socColor} />} label="Batterie" value={chargeW} color={socColor} />
     </div>
   );
@@ -80,8 +79,8 @@ const BatterieNode = ({ data }) => {
 
 const NetzNode = ({ data }) => (
   <div style={nodeStyle}>
-    <Handle type="target" position={Position.Left} style={{ background: "#b07de0", width: 8, height: 8 }} />
-    <Handle type="source" position={Position.Left} style={{ background: "#5aa9e6", width: 8, height: 8 }} />
+    <Handle type="target" position={Position.Right} style={{ background: "#b07de0", width: 8, height: 8 }} />
+    <Handle type="source" position={Position.Right} style={{ background: "#5aa9e6", width: 8, height: 8 }} />
     <NodeLabel icon={<Zap size={18} color="#b07de0" />} label="Netz" value={data.gridImportPowerW} color="#b07de0" />
   </div>
 );
@@ -97,13 +96,6 @@ function makeEdge(id, source, target, w, color) {
       strokeWidth: Math.max(1, Math.min(6, absW / 300)),
       opacity: Math.max(0.15, Math.min(1, absW / 400)),
     },
-    label: absW > 5 ? `${Math.round(absW)} W` : "",
-    labelStyle: { fill: "#e6edf3", fontSize: 11, fontWeight: 500 },
-    labelBgStyle: { fill: "rgba(15,23,32,0.85)", fillOpacity: 1 },
-    labelBgPadding: [4, 6],
-    labelBgBorderRadius: 4,
-    labelBgBlur: 4,
-    markerEnd: { type: MarkerType.ArrowClosed, color, width: 12, height: 8 },
   };
 }
 
