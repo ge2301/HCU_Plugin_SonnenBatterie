@@ -1,15 +1,19 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 
 export default function ConfigForm({ initialConfig, onSave }) {
-  const [form, setForm] = useState({});
+  const initRef = useRef(false);
+  const [form, setForm] = useState(initialConfig || {});
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(null);
   const [error, setError] = useState(null);
 
-  // Sync when initialConfig changes (after save response)
-  useEffect(() => {
-    if (initialConfig) setForm(initialConfig);
-  }, [initialConfig]);
+  // Initialise form only once on mount — never overwrite user edits on poll refresh.
+  // After a successful save the parent calls fetchState which updates initialConfig,
+  // but we deliberately ignore those updates so the user's typed values stay intact.
+  if (!initRef.current) {
+    initRef.current = true;
+    if (initialConfig) setForm({ ...initialConfig });
+  }
 
   const set = (key) => (e) => {
     const raw = e.target.value;
@@ -75,7 +79,7 @@ export default function ConfigForm({ initialConfig, onSave }) {
   return (
     <form className="config-form" onSubmit={handleSubmit}>
       <section className="config-section">
-        <h3>🔌 Verbindung</h3>
+        <h3><Plug size={18} className="inline-icon" /> Verbindung</h3>
 
         <label className="form-field">
           <span>IP-Adresse der sonnenBatterie <span className="req">*</span></span>
@@ -143,7 +147,7 @@ export default function ConfigForm({ initialConfig, onSave }) {
       </section>
 
       <section className="config-section">
-        <h3>🔋 Batterie</h3>
+        <h3><Battery size={18} className="inline-icon" /> Batterie</h3>
 
         <label className="form-field">
           <span>Nutzbare Kapazität (Wh, optional)</span>
@@ -159,7 +163,7 @@ export default function ConfigForm({ initialConfig, onSave }) {
       </section>
 
       <section className="config-section">
-        <h3>📡 Geräte melden</h3>
+        <h3><Radio size={18} className="inline-icon" /> Geräte melden</h3>
 
         <label className="form-field checkbox-field">
           <input type="checkbox" checked={form.exposeBattery !== false} onChange={set("exposeBattery")} />
@@ -179,11 +183,11 @@ export default function ConfigForm({ initialConfig, onSave }) {
         </label>
       </section>
 
-      {error && <div className="config-feedback err">{error}</div>}
-      {saved && <div className="config-feedback ok">{saved}</div>}
+      {error && <div className="config-feedback err"><AlertCircle size={16} className="inline-icon" /> {error}</div>}
+      {saved && <div className="config-feedback ok"><CheckCircle size={16} className="inline-icon" /> {saved}</div>}
 
       <button type="submit" className="btn-save" disabled={saving}>
-        {saving ? "Speichere …" : "💾 Konfiguration speichern"}
+        {saving ? "Speichere …" : <><Save size={18} className="inline-icon" /> Konfiguration speichern</>}
       </button>
     </form>
   );

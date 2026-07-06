@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { LayoutDashboard, Settings } from "lucide-react";
 import StatusBar from "./components/StatusBar.jsx";
 import SocGauge from "./components/SocGauge.jsx";
 import PowerCard from "./components/PowerCard.jsx";
@@ -59,13 +60,13 @@ export default function App() {
           className={`tab ${tab === "dashboard" ? "active" : ""}`}
           onClick={() => setTab("dashboard")}
         >
-          📊 Dashboard
+          <LayoutDashboard size={18} className="inline-icon" /> Dashboard
         </button>
         <button
           className={`tab ${tab === "config" ? "active" : ""}`}
           onClick={() => setTab("config")}
         >
-          ⚙️ Konfiguration
+          <Settings size={18} className="inline-icon" /> Konfiguration
         </button>
       </nav>
 
