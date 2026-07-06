@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from "react";
+import { Plug, Battery, Radio, Save, CheckCircle, AlertCircle } from "lucide-react";
 
 const DEFAULT_FORM = {
   sonnenHost: "",
