@@ -30,7 +30,7 @@ const DEFAULT_CONFIG = {
 	exposeInverter: true,
 	exposeGrid: true,
 	exposeConsumption: true,
-	dashboardPort: 8090,
+	dashboardPort: 5200,
 };
 
 function load() {
