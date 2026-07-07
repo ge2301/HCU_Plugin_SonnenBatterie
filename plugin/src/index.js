@@ -73,7 +73,7 @@ async function main() {
 			callbacks: {
 				getReadiness: currentReadiness,
 				getDevices: currentDevices,
-				getConfigTemplate: () => configModule.buildTemplate(config),
+				getConfigTemplate: () => configModule.buildTemplate(config, host),
 				onConfigUpdate: async (properties) => {
 					config = configModule.applyUpdate(config, properties);
 					configModule.save(config);

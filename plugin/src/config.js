@@ -87,12 +87,19 @@ function applyUpdate(config, properties) {
 /**
  * Builds the CONFIG_TEMPLATE_RESPONSE body describing the configuration form
  * that HCUweb renders for the user.
+ *
+ * @param {object} config - current configuration
+ * @param {string} [hcuHostname] - HCU hostname for the dashboard link (optional, for HCU mode)
  */
-function buildTemplate(config) {
+function buildTemplate(config, hcuHostname) {
+	// Pre-compute the dashboard URL for the WEBLINK field.
+	const dashboardUrl = hcuHostname ? `http://${hcuHostname}:5200` : "http://<HCU-Adresse>:5200";
+
 	const groups = {
 		connection: { friendlyName: "Verbindung", description: "Zugang zur sonnenBatterie im lokalen Netzwerk.", order: 1 },
 		battery: { friendlyName: "Batterie", description: "Angaben zur Batterie.", order: 2 },
 		devices: { friendlyName: "Geräte", description: "Welche Werte an Homematic IP gemeldet werden.", order: 3 },
+		info: { friendlyName: "Info", description: "Hinweise und Links.", order: 4 },
 	};
 
 	const properties = {
@@ -189,6 +196,15 @@ function buildTemplate(config) {
 			defaultValue: "true",
 			order: 4,
 			currentValue: String(config.exposeConsumption !== false),
+		},
+		dashboardUrl: {
+			dataType: "WEBLINK",
+			friendlyName: "Dashboard",
+			description: "Direkter Link zum Live-Dashboard.",
+			groupId: "info",
+			order: 1,
+			currentValue: dashboardUrl,
+			defaultValue: "Dashboard öffnen",
 		},
 	};
 
