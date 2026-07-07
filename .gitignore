@@ -5,3 +5,9 @@ plugin/data/
 .DS_Store
 *.log
 authtoken.txt
+
+sonnenbatterie-*.tar
+
+sonnenbatterie-*.tar.gz
+
+*.ps1
