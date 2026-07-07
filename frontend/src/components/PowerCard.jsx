@@ -1,5 +1,5 @@
 export default function PowerCard({ title, value, unit, tone, hint, icon: Icon }) {
-  const display = value == null ? "–" : Math.round(value).toLocaleString("de-DE");
+  const display = value == null ? "–" : Math.round(Math.abs(value));
 
   return (
     <div className={`card power-card tone-${tone}`}>

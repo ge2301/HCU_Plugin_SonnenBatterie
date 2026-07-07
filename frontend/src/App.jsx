@@ -86,20 +86,23 @@ export default function App() {
                 <BatteryCard
                   percent={status.stateOfChargePercent}
                   powerW={status.batteryChargePowerW}
+                  remainingCapacityWh={status.remainingCapacityWh}
                 />
                 <PowerCard
-                  title="PV-Erzeugung"
+                  title="PV"
                   value={status.productionW}
                   unit="W"
                   tone="production"
                   icon={Sun}
+                  hint="Erzeugung"
                 />
                 <PowerCard
-                  title="Hausverbrauch"
+                  title="Haus"
                   value={status.consumptionW}
                   unit="W"
                   tone="consumption"
                   icon={Home}
+                  hint="Verbrauch"
                 />
                 <PowerCard
                   title="Netz"
@@ -112,17 +115,6 @@ export default function App() {
               </section>
 
               <EnergyFlow status={status} />
-
-              <section className="details">
-                <h2>Details</h2>
-                <dl>
-                  <Detail label="Systemstatus" value={status.systemStatus ?? "–"} />
-                  <Detail
-                    label="Restkapazität"
-                    value={remainingCapacityValue(status, config)}
-                  />
-                </dl>
-              </section>
             </>
           ) : (
             <section className="placeholder">
@@ -156,24 +148,4 @@ function gridHint(w) {
   if (w > 5) return "Bezug aus dem Netz";
   if (w < -5) return "Einspeisung ins Netz";
   return "neutral";
-}
-
-function fmt(v, unit) {
-  return v == null ? "–" : `${v} ${unit}`;
-}
-
-function remainingCapacityValue(status, config) {
-  if (status.remainingCapacityWh != null) {
-    return `${status.remainingCapacityWh} Wh`;
-  }
-  return "–";
-}
-
-function Detail({ label, value }) {
-  return (
-    <div className="detail-row">
-      <dt>{label}</dt>
-      <dd>{value}</dd>
-    </div>
-  );
 }

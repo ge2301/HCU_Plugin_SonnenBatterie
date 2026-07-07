@@ -1,6 +1,6 @@
 import { Battery, BatteryFull, BatteryMedium, BatteryLow, BatteryCharging } from "lucide-react";
 
-export default function BatteryCard({ percent, powerW }) {
+export default function BatteryCard({ percent, powerW, remainingCapacityWh }) {
   const value = percent == null ? 0 : Math.min(100, Math.max(0, percent));
 
   // Choose battery icon that matches the state of charge
@@ -21,14 +21,18 @@ export default function BatteryCard({ percent, powerW }) {
   const offset = circumference * (1 - value / 100);
   const color = "#3ec46d";
 
+  const absW = powerW != null ? Math.round(Math.abs(powerW)) : null;
   const hint =
     powerW == null
       ? null
       : powerW > 5
-        ? "lädt"
+        ? `lädt · ${absW} W`
         : powerW < -5
-          ? "entlädt"
+          ? `entlädt · ${absW} W`
           : "im Ruhezustand";
+
+  const capacityText =
+    remainingCapacityWh != null ? `${Math.round(remainingCapacityWh)} Wh` : null;
 
   return (
     <div className="card battery-card tone-battery">
@@ -48,18 +52,18 @@ export default function BatteryCard({ percent, powerW }) {
           strokeDashoffset={offset}
           transform="rotate(-90 70 70)"
         />
-        <text x="70" y="68" className="gauge-text" dominantBaseline="central">
+        <text x="70" y="62" className="gauge-text" dominantBaseline="central">
           {percent == null ? "–" : `${Math.round(value)}%`}
         </text>
-        {powerW != null && (
+        {capacityText && (
           <text
             x="70"
-            y="88"
+            y="86"
             className="gauge-power"
             dominantBaseline="central"
             textAnchor="middle"
           >
-            {Math.round(Math.abs(powerW))} W
+            {capacityText}
           </text>
         )}
       </svg>

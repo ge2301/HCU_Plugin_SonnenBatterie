@@ -40,7 +40,12 @@ const NodeLabel = ({ icon, label, subLabel, value, color }) => (
     <div style={{ flex: 1 }}>
       <div style={{ fontSize: 13, fontWeight: 700, color }}>{label}</div>
       {subLabel && <div style={{ fontSize: 11, color: color, marginTop: 1 }}>{subLabel}</div>}
-      {value != null && <div style={{ fontSize: 24, fontWeight: 700, color: "#8b9bad", marginTop: 2 }}>{typeof value === "number" ? Math.round(value) + " W" : value}</div>}
+      {value != null && (
+        <div style={{ fontSize: 24, fontWeight: 700, color: "#e6edf3", marginTop: 2 }}>
+          {typeof value === "number" ? Math.round(value) : value}
+          <span style={{ fontSize: 14, color: "#8b9bad", marginLeft: 4 }}>W</span>
+        </div>
+      )}
     </div>
   </div>
 );

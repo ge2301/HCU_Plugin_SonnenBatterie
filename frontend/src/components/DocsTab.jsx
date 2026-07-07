@@ -72,7 +72,7 @@ export default function DocsTab() {
         </h3>
 
         <div className="docs-step">
-          <p>Wechsle zum <strong>⚙️ Konfiguration</strong>-Tab und fülle aus:</p>
+          <p>Wechsle zum <strong>Konfiguration</strong>-Tab und fülle aus:</p>
 
           <table className="docs-table">
             <thead>
@@ -112,7 +112,7 @@ export default function DocsTab() {
           </table>
 
           <p>
-            Klicke auf <strong>💾 Konfiguration speichern</strong>. Bei Erfolg erscheint
+            Klicke auf <strong>Konfiguration speichern</strong>. Bei Erfolg erscheint
             eine grüne Bestätigungsmeldung.
           </p>
 
