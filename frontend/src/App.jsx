@@ -119,11 +119,8 @@ export default function App() {
                   <Detail label="Systemstatus" value={status.systemStatus ?? "–"} />
                   <Detail
                     label="Restkapazität"
-                    value={status.remainingCapacityWh != null ? `${status.remainingCapacityWh} Wh` : "–"}
+                    value={remainingCapacityValue(status, config)}
                   />
-                  <Detail label="USOC" value={fmt(status.usoc, "%")} />
-                  <Detail label="RSOC" value={fmt(status.rsoc, "%")} />
-                  <Detail label="Letzte Messung" value={status.timestamp ?? "–"} />
                 </dl>
               </section>
             </>
@@ -163,6 +160,13 @@ function gridHint(w) {
 
 function fmt(v, unit) {
   return v == null ? "–" : `${v} ${unit}`;
+}
+
+function remainingCapacityValue(status, config) {
+  if (status.remainingCapacityWh != null) {
+    return `${status.remainingCapacityWh} Wh`;
+  }
+  return "–";
 }
 
 function Detail({ label, value }) {

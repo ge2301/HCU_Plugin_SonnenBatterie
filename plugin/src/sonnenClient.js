@@ -93,11 +93,73 @@ function normalize(raw) {
 		usoc,
 		rsoc,
 		stateOfChargePercent: usoc != null ? usoc : rsoc,
-		remainingCapacityWh: remainingWh,
+		// remainingCapacityWh from the API is the physical BMS value, not corrected
+		// for usable capacity limits. We keep it as rawRemainingCapacityWh and will
+		// compute the corrected value in deviceMapper once we know the usable capacity.
+		rawRemainingCapacityWh: remainingWh,
 	};
 }
 
+/**
+ * Fetch battery metadata from /api/v2/battery endpoint.
+ * Returns the capacity in Wh (Capacity_Wh field) if available.
+ */
+async function fetchBattery(config) {
+	const version = (config.sonnenApiVersion || "V2").toUpperCase();
+	const port = config.sonnenPort || DEFAULTS.V2.port;
+	const headers = {};
+	if (version === "V2" && config.sonnenToken) {
+		headers["Auth-Token"] = config.sonnenToken;
+	}
+
+	try {
+		const raw = await httpGetJson({
+			host: config.sonnenHost,
+			port,
+			path: "/api/v2/battery",
+			headers,
+			timeoutMs: 8000,
+		});
+		const capacityWh = num(raw.Capacity_Wh);
+		logger.debug(`Battery capacity from /api/v2/battery: ${capacityWh} Wh`);
+		return capacityWh;
+	} catch (err) {
+		logger.warn(`Could not fetch battery info from /api/v2/battery: ${err.message}`);
+		return null;
+	}
+}
+
+/**
+ * Fetch both /status and /battery endpoints and merge the results.
+ * The /battery endpoint provides the correct Capacity_Wh which is needed
+ * for accurate battery capacity reporting to Homematic IP.
+ */
 async function fetchStatus(config) {
+	const [status, batteryCapacityWh] = await Promise.all([
+		fetchStatusRaw(config),
+		fetchBattery(config),
+	]);
+
+	if (batteryCapacityWh != null) {
+		status.batteryCapacityWh = batteryCapacityWh;
+	}
+
+	// Compute corrected remaining capacity based on usable capacity and USOC.
+	// The raw RemainingCapacity_Wh from the API is the physical BMS value, not
+	// corrected for usable capacity limits. We compute the user-facing value as:
+	// remainingCapacityWh = usableCapacity * (USOC / 100)
+	const usableCapacity = batteryCapacityWh != null ? batteryCapacityWh : config.batteryCapacityWh;
+	if (usableCapacity && status.usoc != null) {
+		status.remainingCapacityWh = Math.round(usableCapacity * (status.usoc / 100));
+	} else if (status.rawRemainingCapacityWh != null) {
+		// Fallback to raw value if we can't compute the corrected one
+		status.remainingCapacityWh = status.rawRemainingCapacityWh;
+	}
+
+	return status;
+}
+
+async function fetchStatusRaw(config) {
 	const version = (config.sonnenApiVersion || "V2").toUpperCase();
 	const preset = DEFAULTS[version] || DEFAULTS.V2;
 	const port = config.sonnenPort || preset.port;
@@ -117,4 +179,4 @@ async function fetchStatus(config) {
 	return normalize(raw);
 }
 
-module.exports = { fetchStatus, normalize };
+module.exports = { fetchStatus, fetchBattery, normalize };

@@ -75,7 +75,7 @@ const BatterieNode = ({ data }) => {
   else if (soc >= 90) Icon = BatteryFull;
   else if (soc >= 50) Icon = BatteryMedium;
   else if (soc >= 10) Icon = BatteryLow;
-  const socColor = soc > 50 ? "#3ec46d" : soc > 20 ? "#f0ad4e" : "#e0533d";
+  const socColor = "#3ec46d";
   const statusHint = isCharging
     ? ` · lädt`
     : isDischarging

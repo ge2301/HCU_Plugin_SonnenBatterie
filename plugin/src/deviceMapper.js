@@ -31,14 +31,20 @@ function round(value, digits = 0) {
 
 /**
  * Determine the usable battery capacity in Wh.
- * Priority: explicit config value -> derived from remaining capacity and SOC.
+ * Priority: explicit config value -> batteryCapacityWh from API (fetched via /api/v2/battery).
+ *
+ * NOTE: We no longer auto-derive capacity from RemainingCapacity_Wh / SOC because
+ * the sonnen API's RemainingCapacity_Wh is NOT linearly proportional to SOC
+ * (it accounts for usable capacity limits, reserves, etc.), producing
+ * completely wrong total capacity values (e.g. 23 kWh for a 10 kWh battery).
  */
 function resolveBatteryCapacityWh(status, config) {
 	if (config.batteryCapacityWh && Number(config.batteryCapacityWh) > 0) {
 		return Number(config.batteryCapacityWh);
 	}
-	if (status.remainingCapacityWh != null && status.stateOfChargePercent > 0) {
-		return round(status.remainingCapacityWh / (status.stateOfChargePercent / 100));
+	// Use capacity fetched from /api/v2/battery if available
+	if (status.batteryCapacityWh != null && status.batteryCapacityWh > 0) {
+		return status.batteryCapacityWh;
 	}
 	return null;
 }

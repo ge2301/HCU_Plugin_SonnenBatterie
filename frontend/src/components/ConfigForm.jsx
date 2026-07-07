@@ -105,15 +105,6 @@ export default function ConfigForm({ initialConfig, onSave }) {
           <small>Lokale IP-Adresse deiner sonnenBatterie</small>
         </label>
 
-        <label className="form-field">
-          <span>API-Version</span>
-          <select value={form.sonnenApiVersion || "V2"} onChange={set("sonnenApiVersion")}>
-            <option value="V2">V2 (Standard, Port 80, Token nötig)</option>
-            <option value="V1">V1 (Legacy, Port 8080, kein Token)</option>
-          </select>
-          <small>V2 ist der aktuelle Standard. V1 für ältere Geräte.</small>
-        </label>
-
         {(form.sonnenApiVersion || "V2") === "V2" && (
           <label className="form-field">
             <span>API Read-Token <span className="req">*</span></span>
@@ -132,18 +123,29 @@ export default function ConfigForm({ initialConfig, onSave }) {
           </label>
         )}
 
-        <label className="form-field">
-          <span>Port (optional)</span>
-          <input
-            type="number"
-            value={form.sonnenPort != null ? form.sonnenPort : ""}
-            onChange={set("sonnenPort")}
-            placeholder="80 (V2) / 8080 (V1)"
-            min={1}
-            max={65535}
-          />
-          <small>Nur ändern, wenn ein abweichender Port nötig ist.</small>
-        </label>
+        <div className="form-row">
+          <label className="form-field">
+            <span>API-Version</span>
+            <select value={form.sonnenApiVersion || "V2"} onChange={set("sonnenApiVersion")}>
+              <option value="V2">V2 (Standard, Port 80)</option>
+              <option value="V1">V1 (Legacy, Port 8080)</option>
+            </select>
+            <small>V2 ist der aktuelle Standard.</small>
+          </label>
+
+          <label className="form-field">
+            <span>Port (optional)</span>
+            <input
+              type="number"
+              value={form.sonnenPort != null ? form.sonnenPort : ""}
+              onChange={set("sonnenPort")}
+              placeholder="80 / 8080"
+              min={1}
+              max={65535}
+            />
+            <small>Nur bei abweichendem Port.</small>
+          </label>
+        </div>
 
         <label className="form-field">
           <span>Abfrageintervall (Sekunden)</span>
@@ -177,22 +179,24 @@ export default function ConfigForm({ initialConfig, onSave }) {
       <section className="config-section">
         <h3><Radio size={18} className="inline-icon" /> Geräte melden</h3>
 
-        <label className="form-field checkbox-field">
-          <input type="checkbox" checked={form.exposeBattery !== false} onChange={set("exposeBattery")} />
-          <span>Batterie (Ladezustand + Leistung)</span>
-        </label>
-        <label className="form-field checkbox-field">
-          <input type="checkbox" checked={form.exposeInverter !== false} onChange={set("exposeInverter")} />
-          <span>PV-Erzeugung</span>
-        </label>
-        <label className="form-field checkbox-field">
-          <input type="checkbox" checked={form.exposeGrid !== false} onChange={set("exposeGrid")} />
-          <span>Netzanschluss (Bezug/Einspeisung)</span>
-        </label>
-        <label className="form-field checkbox-field">
-          <input type="checkbox" checked={form.exposeConsumption !== false} onChange={set("exposeConsumption")} />
-          <span>Hausverbrauch</span>
-        </label>
+        <div className="form-row form-row-2">
+          <label className="form-field checkbox-field">
+            <input type="checkbox" checked={form.exposeBattery !== false} onChange={set("exposeBattery")} />
+            <span>Batterie (Ladezustand + Leistung)</span>
+          </label>
+          <label className="form-field checkbox-field">
+            <input type="checkbox" checked={form.exposeInverter !== false} onChange={set("exposeInverter")} />
+            <span>PV-Erzeugung</span>
+          </label>
+          <label className="form-field checkbox-field">
+            <input type="checkbox" checked={form.exposeGrid !== false} onChange={set("exposeGrid")} />
+            <span>Netzanschluss (Bezug/Einspeisung)</span>
+          </label>
+          <label className="form-field checkbox-field">
+            <input type="checkbox" checked={form.exposeConsumption !== false} onChange={set("exposeConsumption")} />
+            <span>Hausverbrauch</span>
+          </label>
+        </div>
       </section>
 
       {error && <div className="config-feedback err"><AlertCircle size={16} className="inline-icon" /> {error}</div>}

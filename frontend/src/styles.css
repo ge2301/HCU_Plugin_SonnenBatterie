@@ -64,6 +64,8 @@ h1 {
   flex-wrap: wrap;
   gap: 8px;
   margin-bottom: 20px;
+  justify-content: flex-end;
+  justify-content: flex-end;
 }
 
 .badge {
@@ -144,16 +146,16 @@ h1 {
 }
 
 .tone-production {
-  border-left: 3px solid var(--production);
+  border-top: 3px solid var(--production);
 }
 .tone-consumption {
-  border-left: 3px solid var(--consumption);
+  border-top: 3px solid var(--consumption);
 }
 .tone-battery {
-  border-left: 3px solid var(--battery);
+  border-top: 3px solid var(--battery);
 }
 .tone-grid {
-  border-left: 3px solid var(--grid);
+  border-top: 3px solid var(--grid);
 }
 
 .gauge-card {
@@ -316,7 +318,7 @@ dl {
 
 /* ── Config Form ──────────────────────────────────── */
 .config-form {
-  max-width: 640px;
+  max-width: 100%;
 }
 
 .config-section {
@@ -353,6 +355,21 @@ h3 .inline-icon {
   grid-template-columns: 1fr;
   gap: 4px;
   margin-bottom: 16px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-row > .form-field {
+  margin-bottom: 0;
+}
+
+.form-row-2 > .form-field {
+  min-width: 0;
 }
 
 .form-field span {
@@ -465,7 +482,7 @@ code {
 
 /* ── Documentation Tab ───────────────────────────────────── */
 .docs {
-  max-width: 720px;
+  max-width: 100%;
 }
 
 .docs-header {

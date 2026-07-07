@@ -19,7 +19,7 @@ export default function BatteryCard({ percent, powerW }) {
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference * (1 - value / 100);
-  const color = value > 50 ? "#3ec46d" : value > 20 ? "#f0ad4e" : "#e0533d";
+  const color = "#3ec46d";
 
   const hint =
     powerW == null
@@ -31,7 +31,7 @@ export default function BatteryCard({ percent, powerW }) {
           : "im Ruhezustand";
 
   return (
-    <div className="card battery-card">
+    <div className="card battery-card tone-battery">
       <h3>
         <BatteryIcon size={20} className="card-icon" />
         Batterie
